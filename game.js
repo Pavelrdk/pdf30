@@ -447,7 +447,7 @@ function spawnEnemy() {
     if (isMobileDevice()) {
         game.enemy.speed = game.player.speed * 0.5;
     } else {
-        game.enemy.speed = game.player.speed * 1.1;
+        game.enemy.speed = game.player.speed * 0.8;
     }
 
     // Remove enemy after 10 seconds
