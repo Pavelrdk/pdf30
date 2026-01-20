@@ -613,11 +613,23 @@ function handleJoystickMove(e) {
     joystickData.x = deltaX / maxDistance;
     joystickData.y = deltaY / maxDistance;
 
-    // Update game keys based on joystick
-    game.keys.left = joystickData.x < -0.3;
-    game.keys.right = joystickData.x > 0.3;
-    game.keys.up = joystickData.y < -0.3;
-    game.keys.down = joystickData.y > 0.3;
+    // Customize controls based on device
+    if (isMobileDevice()) {
+        // Increase speed for mobile to compensate for joystick feel
+        game.player.speed = game.player.speed * 1.5;
+
+        // Make joystick more sensitive (triggers at 20% instead of 30%)
+        game.keys.left = joystickData.x < -0.2;
+        game.keys.right = joystickData.x > 0.2;
+        game.keys.up = joystickData.y < -0.2;
+        game.keys.down = joystickData.y > 0.2;
+    } else {
+        // Standard joystick tuning for mouse/desktop testing
+        game.keys.left = joystickData.x < -0.3;
+        game.keys.right = joystickData.x > 0.3;
+        game.keys.up = joystickData.y < -0.3;
+        game.keys.down = joystickData.y > 0.3;
+    }
 }
 
 function handleJoystickEnd() {
@@ -631,6 +643,10 @@ function handleJoystickEnd() {
     game.keys.right = false;
     game.keys.up = false;
     game.keys.down = false;
+}
+
+function isMobileDevice() {
+    return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
 }
 
 // Start initialization

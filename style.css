@@ -438,17 +438,45 @@ body {
         display: block;
     }
 
+    /* Компактный UI */
     #ui-panel {
-        gap: 10px;
-        padding: 10px;
+        gap: 5px;
+        padding: 8px 5px;
+        justify-content: space-around;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
     }
 
     .stat-card {
-        padding: 8px 16px;
+        padding: 5px 10px;
+        background: rgba(0, 0, 0, 0.5);
+        border: none;
+        box-shadow: none;
+    }
+
+    .stat-label {
+        font-size: 0.6rem;
+        display: none;
+        /* Скрываем подписи для экономии места */
     }
 
     .stat-value {
-        font-size: 1.2rem;
+        font-size: 0.9rem;
+    }
+
+    /* Добавляем иконки вместо текста через псевдоэлементы */
+    #pdf-size::before {
+        content: "📦 ";
+    }
+
+    #files-eaten::before {
+        content: "🍽️ ";
+    }
+
+    #game-time::before {
+        content: "⏱️ ";
     }
 
     #start-screen h1 {
@@ -466,6 +494,30 @@ body {
     #start-btn {
         padding: 15px 40px;
         font-size: 1.1rem;
+    }
+
+    /* Уменьшение игровых объектов для визуального увеличения поля */
+    .file-icon {
+        transform: scale(0.7);
+        transform-origin: center center;
+    }
+
+    /* Коррекция размеров контейнеров, чтобы хитбоксы соответствовали визуалу */
+    .file-entity {
+        transform: scale(0.7);
+        /* transform-origin не нужен, пусть скейлится сам контейнер */
+    }
+
+    #player .file-icon {
+        transform: none;
+        /* Сброс вложенного скейла если есть */
+    }
+
+    /* Исправление высоты для мобильных браузеров */
+    #game-container {
+        height: 100dvh;
+        /* Используем dynamic utility если поддерживается */
+        min-height: 100%;
     }
 }
 
