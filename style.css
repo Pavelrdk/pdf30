@@ -196,7 +196,7 @@ body {
     }
 }
 
-/* Food file types */
+/* Food file types - CSS gradients */
 .pdf-icon {
     background: linear-gradient(180deg, #ff4444 0%, #cc0000 100%) !important;
 }
@@ -275,6 +275,152 @@ body {
 
 .js-icon .file-ext {
     color: #333;
+}
+
+/* PSD Enemy - Adobe Photoshop style */
+.psd-icon {
+    background: linear-gradient(180deg, #31a8ff 0%, #001e36 100%) !important;
+    box-shadow:
+        0 0 30px rgba(49, 168, 255, 0.8),
+        0 0 60px rgba(49, 168, 255, 0.4) !important;
+}
+
+.psd-icon .file-ext {
+    color: #31a8ff;
+    font-weight: 900;
+}
+
+#enemy {
+    z-index: 50;
+}
+
+#enemy .file-icon {
+    width: 90px;
+    height: 105px;
+    animation: enemyPulse 0.5s ease-in-out infinite, enemyGlow 1s ease-in-out infinite;
+}
+
+@keyframes enemyPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.08);
+    }
+}
+
+@keyframes enemyGlow {
+
+    0%,
+    100% {
+        box-shadow:
+            0 0 30px rgba(49, 168, 255, 0.8),
+            0 0 60px rgba(49, 168, 255, 0.4);
+    }
+
+    50% {
+        box-shadow:
+            0 0 60px rgba(49, 168, 255, 1),
+            0 0 120px rgba(49, 168, 255, 0.7);
+    }
+}
+
+#enemy .file-size {
+    background: rgba(49, 168, 255, 0.9);
+    color: #fff;
+    font-weight: 700;
+}
+
+/* Enemy warning banner */
+#enemy-warning {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, rgba(49, 168, 255, 0.95), rgba(0, 30, 54, 0.95));
+    color: #fff;
+    padding: 12px 30px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 700;
+    z-index: 200;
+    animation: warningPulse 0.8s ease-in-out infinite;
+    box-shadow: 0 5px 30px rgba(49, 168, 255, 0.6);
+    border: 2px solid rgba(49, 168, 255, 0.8);
+}
+
+@keyframes warningPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: translateX(-50%) scale(1.02);
+    }
+}
+
+/* Game Over screen */
+#game-over {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 300;
+    color: #fff;
+    text-align: center;
+}
+
+#game-over h2 {
+    font-size: 3.5rem;
+    color: #31a8ff;
+    margin-bottom: 10px;
+    text-shadow: 0 0 30px rgba(49, 168, 255, 0.8);
+}
+
+#game-over .subtitle {
+    font-size: 1.5rem;
+    color: #ff4444;
+    margin-bottom: 25px;
+}
+
+#game-over .stats {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 30px;
+}
+
+#restart-btn {
+    background: linear-gradient(135deg, #4ecdc4 0%, #44a8a0 100%);
+    color: #fff;
+    border: none;
+    padding: 16px 45px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(78, 205, 196, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#restart-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(78, 205, 196, 0.6);
 }
 
 /* Mobile Joystick */

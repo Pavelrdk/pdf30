@@ -3,6 +3,7 @@ const game = {
     isRunning: false,
     playerSize: 1024, // in KB (1 MB = 1024 KB)
     filesEaten: 0,
+    filesForEnemy: 0, // Counter for enemy spawn
     startTime: null,
     timerInterval: null,
     spawnInterval: null,
@@ -12,6 +13,16 @@ const game = {
         speed: 5,
         width: 80,
         height: 120
+    },
+    enemy: {
+        active: false,
+        x: 0,
+        y: 0,
+        speed: 3,
+        width: 90,
+        height: 130,
+        element: null,
+        timeoutId: null
     },
     keys: {
         up: false,
@@ -44,10 +55,16 @@ const pdfSizeDisplay = document.getElementById('pdf-size');
 const filesEatenDisplay = document.getElementById('files-eaten');
 const gameTimeDisplay = document.getElementById('game-time');
 const levelUpEl = document.getElementById('level-up');
+const enemyWarning = document.getElementById('enemy-warning');
+const gameOverScreen = document.getElementById('game-over');
+const restartBtn = document.getElementById('restart-btn');
+const finalSizeEl = document.getElementById('final-size');
+const finalFilesEl = document.getElementById('final-files');
 
 // Initialize game
 function init() {
     startBtn.addEventListener('click', startGame);
+    restartBtn.addEventListener('click', restartGame);
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('keyup', handleKeyUp);
 
@@ -60,14 +77,34 @@ function init() {
 
 function startGame() {
     startScreen.classList.add('hidden');
+    gameOverScreen.classList.add('hidden');
     game.isRunning = true;
     game.startTime = Date.now();
     game.playerSize = 1024;
     game.filesEaten = 0;
+    game.filesForEnemy = 0;
+    game.player.speed = 5;
+
+    // Reset enemy
+    if (game.enemy.element) {
+        game.enemy.element.remove();
+        game.enemy.element = null;
+    }
+    game.enemy.active = false;
+    if (game.enemy.timeoutId) {
+        clearTimeout(game.enemy.timeoutId);
+    }
+    enemyWarning.classList.add('hidden');
 
     // Clear any existing foods
     document.querySelectorAll('.food-file').forEach(f => f.remove());
     game.foods = [];
+
+    // Center player
+    const rect = gameArea.getBoundingClientRect();
+    game.player.x = rect.width / 2 - game.player.width / 2;
+    game.player.y = rect.height / 2 - game.player.height / 2;
+    updatePlayerPosition();
 
     // Start timer
     game.timerInterval = setInterval(updateTimer, 1000);
@@ -80,6 +117,10 @@ function startGame() {
     requestAnimationFrame(gameLoop);
 
     updateUI();
+}
+
+function restartGame() {
+    startGame();
 }
 
 function handleKeyDown(e) {
@@ -128,7 +169,9 @@ function gameLoop() {
     if (!game.isRunning) return;
 
     movePlayer();
+    moveEnemy();
     checkCollisions();
+    checkEnemyCollision();
 
     requestAnimationFrame(gameLoop);
 }
@@ -264,6 +307,13 @@ function eatFood(food, index) {
     // Update game state
     game.playerSize += food.size;
     game.filesEaten++;
+    game.filesForEnemy++;
+
+    // Check for enemy spawn (every 5 files)
+    if (game.filesForEnemy >= 5 && !game.enemy.active) {
+        game.filesForEnemy = 0;
+        spawnEnemy();
+    }
 
     // Check for level up (every 1 MB)
     const previousMB = Math.floor((game.playerSize - food.size) / 1024);
@@ -338,6 +388,158 @@ function updateUI() {
     // Scale player based on size (subtle growth)
     const scale = 1 + Math.log10(game.playerSize / 1024) * 0.1;
     player.querySelector('.file-icon').style.transform = `scale(${Math.min(scale, 1.5)})`;
+}
+
+// ===== ENEMY PSD FUNCTIONS =====
+
+function spawnEnemy() {
+    if (game.enemy.active) return;
+
+    const rect = gameArea.getBoundingClientRect();
+
+    // Spawn at random edge of screen
+    const side = Math.floor(Math.random() * 4);
+    let x, y;
+
+    switch (side) {
+        case 0: // top
+            x = Math.random() * (rect.width - game.enemy.width);
+            y = -game.enemy.height;
+            break;
+        case 1: // right
+            x = rect.width;
+            y = Math.random() * (rect.height - game.enemy.height);
+            break;
+        case 2: // bottom
+            x = Math.random() * (rect.width - game.enemy.width);
+            y = rect.height;
+            break;
+        case 3: // left
+            x = -game.enemy.width;
+            y = Math.random() * (rect.height - game.enemy.height);
+            break;
+    }
+
+    game.enemy.x = x;
+    game.enemy.y = y;
+
+    // Create enemy element
+    const enemy = document.createElement('div');
+    enemy.id = 'enemy';
+    enemy.className = 'file-entity';
+    enemy.innerHTML = `
+        <div class="file-icon psd-icon">
+            <span class="file-ext">PSD</span>
+        </div>
+        <span class="file-size">∞ MB</span>
+    `;
+    enemy.style.left = x + 'px';
+    enemy.style.top = y + 'px';
+
+    game.enemy.element = enemy;
+    game.enemy.active = true;
+    gameArea.appendChild(enemy);
+
+    // Show warning
+    enemyWarning.classList.remove('hidden');
+
+    // Enemy speed is 1.1x player speed
+    game.enemy.speed = game.player.speed * 1.1;
+
+    // Remove enemy after 10 seconds
+    game.enemy.timeoutId = setTimeout(() => {
+        despawnEnemy();
+    }, 10000);
+}
+
+function despawnEnemy() {
+    if (!game.enemy.active) return;
+
+    game.enemy.active = false;
+    if (game.enemy.element) {
+        game.enemy.element.classList.add('eating');
+        setTimeout(() => {
+            if (game.enemy.element && game.enemy.element.parentNode) {
+                game.enemy.element.remove();
+            }
+            game.enemy.element = null;
+        }, 300);
+    }
+    enemyWarning.classList.add('hidden');
+
+    if (game.enemy.timeoutId) {
+        clearTimeout(game.enemy.timeoutId);
+        game.enemy.timeoutId = null;
+    }
+}
+
+function moveEnemy() {
+    if (!game.enemy.active || !game.enemy.element) return;
+
+    const rect = gameArea.getBoundingClientRect();
+
+    // Chase player
+    const dx = game.player.x - game.enemy.x;
+    const dy = game.player.y - game.enemy.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist > 0) {
+        game.enemy.x += (dx / dist) * game.enemy.speed;
+        game.enemy.y += (dy / dist) * game.enemy.speed;
+    }
+
+    // Keep in bounds
+    game.enemy.x = Math.max(-20, Math.min(rect.width - game.enemy.width + 20, game.enemy.x));
+    game.enemy.y = Math.max(-20, Math.min(rect.height - game.enemy.height + 20, game.enemy.y));
+
+    game.enemy.element.style.left = game.enemy.x + 'px';
+    game.enemy.element.style.top = game.enemy.y + 'px';
+}
+
+function checkEnemyCollision() {
+    if (!game.enemy.active) return;
+
+    const playerRect = {
+        x: game.player.x + 10,
+        y: game.player.y + 10,
+        width: game.player.width - 20,
+        height: game.player.height - 20
+    };
+
+    const enemyRect = {
+        x: game.enemy.x + 10,
+        y: game.enemy.y + 10,
+        width: game.enemy.width - 20,
+        height: game.enemy.height - 20
+    };
+
+    if (isColliding(playerRect, enemyRect)) {
+        gameOver();
+    }
+}
+
+function gameOver() {
+    game.isRunning = false;
+
+    // Clear intervals
+    if (game.timerInterval) clearInterval(game.timerInterval);
+    if (game.spawnInterval) clearInterval(game.spawnInterval);
+    if (game.enemy.timeoutId) clearTimeout(game.enemy.timeoutId);
+
+    // Format final size
+    const sizeMB = game.playerSize / 1024;
+    let sizeText;
+    if (sizeMB >= 1024) {
+        sizeText = (sizeMB / 1024).toFixed(2) + ' GB';
+    } else {
+        sizeText = sizeMB.toFixed(2) + ' MB';
+    }
+
+    // Show game over screen
+    finalSizeEl.textContent = sizeText;
+    finalFilesEl.textContent = game.filesEaten;
+    gameOverScreen.classList.remove('hidden');
+    enemyWarning.classList.add('hidden');
 }
 
 function updateTimer() {
