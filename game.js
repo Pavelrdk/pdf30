@@ -443,8 +443,12 @@ function spawnEnemy() {
     // Show warning
     enemyWarning.classList.remove('hidden');
 
-    // Enemy speed is 1.1x player speed
-    game.enemy.speed = game.player.speed * 1.1;
+    // Enemy speed depends on device
+    if (isMobileDevice()) {
+        game.enemy.speed = game.player.speed * 0.5;
+    } else {
+        game.enemy.speed = game.player.speed * 1.1;
+    }
 
     // Remove enemy after 10 seconds
     game.enemy.timeoutId = setTimeout(() => {
