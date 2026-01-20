@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Поглотитель</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="ui-panel">
+            <div class="stat-card">
+                <span class="stat-label">Размер PDF</span>
+                <span id="pdf-size" class="stat-value">1.00 MB</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Съедено файлов</span>
+                <span id="files-eaten" class="stat-value">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Время</span>
+                <span id="game-time" class="stat-value">00:00</span>
+            </div>
+        </div>
+        
+        <div id="game-area">
+            <div id="player" class="file-entity">
+                <div class="file-icon pdf-icon">
+                    <span class="file-ext">PDF</span>
+                </div>
+                <span class="file-size">1.00 MB</span>
+            </div>
+        </div>
+        
+        <div id="start-screen">
+            <h1>🗂️ PDF Поглотитель</h1>
+            <p>Управляйте PDF-файлом и поглощайте другие документы!</p>
+            <p class="hint">Используйте <strong>WASD</strong> или <strong>стрелки</strong> для движения</p>
+            <button id="start-btn">Начать игру</button>
+        </div>
+        
+        <div id="level-up" class="hidden">
+            <span>🎉 Уровень UP!</span>
+        </div>
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+</html>
